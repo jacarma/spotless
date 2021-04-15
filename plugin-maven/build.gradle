@@ -144,27 +144,32 @@ libs.each {
 }
 
 task createPomXml(dependsOn: installLocalDependencies) {
+	def pomXmlTemplate = Paths.get(PROJECT_DIR, "src/test/resources/pom-build.xml.mustache")
+	def newPomXml = Paths.get(MAVEN_PROJECT_DIR, "pom.xml")
+
+	inputs.file(pomXmlTemplate)
+	outputs.file(newPomXml)
+	def additionalDependencies = project.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.findAll {
+		return !libs.contains(it.moduleVersion.id.name)
+	}.collect {
+		return  "    <dependency>\n" +
+				"      <groupId>${it.moduleVersion.id.group}</groupId>\n" +
+				"      <artifactId>${it.moduleVersion.id.name}</artifactId>\n" +
+				"      <version>${it.moduleVersion.id.version}</version>\n" +
+				"    </dependency>\n"
+	}.join()
+
+	def versions = [
+		spotlessMavenPluginVersion: version,
+		mavenApiVersion           : VER_MAVEN_API,
+		eclipseAetherVersion      : VER_ECLIPSE_AETHER,
+		spotlessLibVersion        : libVersion,
+		additionalDependencies    : additionalDependencies
+	]
+	inputs.property("versions", versions)
+
 	doLast {
-		def additionalDependencies = project.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.findAll {
-			return !libs.contains(it.moduleVersion.id.name)
-		}.collect {
-			return  "    <dependency>\n" +
-					"      <groupId>${it.moduleVersion.id.group}</groupId>\n" +
-					"      <artifactId>${it.moduleVersion.id.name}</artifactId>\n" +
-					"      <version>${it.moduleVersion.id.version}</version>\n" +
-					"    </dependency>\n"
-		}.join()
 
-		def versions = [
-			spotlessMavenPluginVersion: version,
-			mavenApiVersion           : VER_MAVEN_API,
-			eclipseAetherVersion      : VER_ECLIPSE_AETHER,
-			spotlessLibVersion        : libVersion,
-			additionalDependencies    : additionalDependencies
-		]
-
-		def pomXmlTemplate = Paths.get(PROJECT_DIR, "src/test/resources/pom-build.xml.mustache")
-		def newPomXml = Paths.get(MAVEN_PROJECT_DIR, "pom.xml")
 
 		Files.newBufferedReader(pomXmlTemplate).withCloseable { reader ->
 			Files.newBufferedWriter(newPomXml, UTF_8, CREATE_NEW, TRUNCATE_EXISTING).withCloseable { writer ->
