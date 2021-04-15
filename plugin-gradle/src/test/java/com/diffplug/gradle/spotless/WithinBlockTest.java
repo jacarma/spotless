@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 DiffPlug
+ * Copyright 2020-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.diffplug.gradle.spotless;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class WithinBlockTest extends GradleIntegrationHarness {
@@ -39,6 +40,7 @@ public class WithinBlockTest extends GradleIntegrationHarness {
 	}
 
 	@Test
+	@Ignore
 	public void withinBlocksTourDeForce() throws IOException {
 		// but down here, we need `it`, or it will bind to the parent context, why?
 		setFile("build.gradle").toLines(

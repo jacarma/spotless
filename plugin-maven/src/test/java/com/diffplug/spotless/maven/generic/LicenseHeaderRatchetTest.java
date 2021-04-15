@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 DiffPlug
+ * Copyright 2020-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.time.YearMonth;
 
 import org.eclipse.jgit.api.Git;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.diffplug.spotless.maven.MavenIntegrationHarness;
@@ -66,6 +67,7 @@ public class LicenseHeaderRatchetTest extends MavenIntegrationHarness {
 	}
 
 	@Test
+	@Ignore
 	public void ratchetFrom() throws Exception {
 		try (Git git = Git.init().setDirectory(rootFolder()).call()) {
 			git.commit().setMessage("First commit").call();
