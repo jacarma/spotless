@@ -21,6 +21,7 @@ visteg {
 	colorscheme = 'pastel24' // https://www.graphviz.org/doc/info/colors.html
 }
 
+import org.gradle.process.CommandLineArgumentProvider
 import com.github.mustachejava.DefaultMustacheFactory
 
 import java.nio.file.Files
@@ -203,8 +204,24 @@ jar.doLast {
 
 apply from: rootProject.file('gradle/special-tests.gradle')
 
+class LocalMavenRepositoryDirLocationProvider implements CommandLineArgumentProvider {
+	@InputDirectory
+	@PathSensitive(PathSensitivity.RELATIVE)
+	String localMavenRepositoryDir
+
+	@Override
+	Iterable<String> asArguments() {
+		[
+			"-DlocalMavenRepositoryDir=${localMavenRepositoryDir}"
+		]
+	}
+}
+
 tasks.withType(Test) {
-	systemProperty "localMavenRepositoryDir", LOCAL_MAVEN_REPO_DIR
+	// systemProperty "localMavenRepositoryDir", LOCAL_MAVEN_REPO_DIR
+	jvmArgumentProviders.add(
+			new LocalMavenRepositoryDirLocationProvider(localMavenRepositoryDir: LOCAL_MAVEN_REPO_DIR)
+			)
 	systemProperty "spotlessMavenPluginVersion", project.version
 	dependsOn(jar)
 }
